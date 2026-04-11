@@ -1,75 +1,56 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace metaheuristics_geneticAlgorithm
 {
-    public class MainForm : Form
+    public partial class MainForm : Form
     {
-        private TextBox txtRows, txtCols, txtFillPercent, txtErrors, txtMutationFreq;
-        private TextBox txtOutput;
-        private Button btnGenerate;
+        private BackgroundWorker bw;
 
-        public MainForm()
+        //listy do trzymania historii wyników dla wykresu
+        private List<double> dataX = new List<double>();
+        private List<double> dataY = new List<double>();
+
+        public MainForm() 
         {
-            this.Text = "Generator Instancji (Problem IV)";
-            //rozmiar okna 
-            this.Width = 800;
-            this.Height = 600;
-            //minimalny rozmiar okna - zabespieczenie przed zawinięciem całkowicie/do zera
-            this.MinimumSize = new System.Drawing.Size(500, 400);
+            InitializeComponent();
 
-            int yPos = 20;
-            //pola do wpisania przez użytkownika 
-            txtRows = AddInputRow("Liczba wierszy (m):", "", ref yPos);
-            txtCols = AddInputRow("Liczba kolumn (n):", "", ref yPos);
-            txtFillPercent = AddInputRow("% występowania '1':", "", ref yPos);
-            txtErrors = AddInputRow("Liczba błędów:", "", ref yPos);
-            txtMutationFreq = AddInputRow("Częstotliwość mutacji:", "", ref yPos);
+            //eventy przycisków
+            Button_matrix.Click += Button_matrix_Click;
+            btnStart.Click += btnStart_Click;
+            btnStop.Click += btnStop_Click;
 
-            btnGenerate = new Button() { Text = "Generuj Macierz", Top = yPos, Left = 20, Width = 150, Height = 40 };
-            btnGenerate.Click += BtnGenerate_Click;
-            this.Controls.Add(btnGenerate);
+            btnStop.Enabled = false;
 
-            txtOutput = new TextBox()
-            {
-                Top = yPos + 40,
-                Left = 20,
-                //szerokość i wysokość okina macierzy wynikowej liczona dynamicznie od wielkości okna
-                Width = this.ClientSize.Width - 40,
-                Height = this.ClientSize.Height - (yPos + 60),
-                Multiline = true,
-                ScrollBars = ScrollBars.Both,
-                WordWrap = false, //wyłączenie załamywania wierszy
-                ReadOnly = true,
-                Font = new System.Drawing.Font("Consolas", 10),
-                //zahaczenie pola tekstowego z macierzą do okna, aby było czytelne
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
-            };
-            this.Controls.Add(txtOutput);
+            //konfiguracja BackgroundWorker 
+            bw = new BackgroundWorker();
+            bw.WorkerReportsProgress = true;
+            bw.WorkerSupportsCancellation = true;
+
+            bw.DoWork += Bw_DoWork;
+            bw.ProgressChanged += Bw_ProgressChanged;
+            bw.RunWorkerCompleted += Bw_RunWorkerCompleted;
+
+            //przygotowanie wykresu
+            plotResults.Plot.Clear();
+            plotResults.Refresh();
         }
 
-        private TextBox AddInputRow(string labelText, string defaultValue, ref int y)
-        {
-            Label lbl = new Label() { Text = labelText, Top = y, Left = 20, Width = 200 };
-            TextBox txt = new TextBox() { Text = defaultValue, Top = y, Left = 230, Width = 100 };
-            this.Controls.Add(lbl);
-            this.Controls.Add(txt);
-            y += 30;
-            return txt;
-        }
-
-        private void BtnGenerate_Click(object? sender, EventArgs e)
+        //generator instancji - podpięcie
+        private void Button_matrix_Click(object sender, EventArgs e)
         {
             try
             {
-                int m = int.Parse(txtRows.Text);
-                int n = int.Parse(txtCols.Text);
-                double fill = double.Parse(txtFillPercent.Text);
-                int errors = int.Parse(txtErrors.Text);
+                int m = (int)row_num.Value;
+                int n = (int)col_num.Value;
+                double fill = (double)percent_num.Value;
+                int errors = (int)error_num.Value;
 
                 instance_generator generator = new instance_generator();
-
                 byte[][] finalMatrix = generator.GenerateInstance(m, n, fill, errors);
 
                 StringBuilder sb = new StringBuilder();
@@ -82,13 +63,109 @@ namespace metaheuristics_geneticAlgorithm
                     sb.AppendLine();
                 }
 
-                txtOutput.Text = sb.ToString();
+                Matrix_output.Text = sb.ToString();
             }
             catch (Exception ex)
             {
-               
-                MessageBox.Show("Wypełnij poprawnie wszystkie pola liczbami!\nSzczegóły: " + ex.Message, "Błąd wprowadzania");
+                MessageBox.Show("Błąd generatora: " + ex.Message);
             }
         }
+
+        //guzik startu
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            if (!bw.IsBusy)
+            {
+                btnStart.Enabled = false;
+                btnStop.Enabled = true;
+
+                console.Clear();
+                dataX.Clear();
+                dataY.Clear();
+                plotResults.Plot.Clear();
+                progressBar.Value = 0;
+
+                tabControl1.SelectedIndex = 2; //przejście do zakładki wyniki
+
+                int maxIterations = (int)iterate_num.Value;
+                if (maxIterations == 0) maxIterations = 100;
+
+                bw.RunWorkerAsync(maxIterations);
+            }
+        }
+
+        //guzik stopu
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            if (bw.IsBusy)
+            {
+                bw.CancelAsync();
+                btnStop.Enabled = false;
+                console.AppendText("Przerywanie...\r\n");
+            }
+        }
+
+        //obliczenia algorytmu - osobny, główny wątek
+        private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        {
+            // rzutowanie workera
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            //pobranie danych wejściowych (liczba iteracji) i rzutowanie na typ int
+            int totalIterations = (int)e.Argument;
+
+            //tworzenie obiektu  metaheurystyki
+            metaheuristics algorytm = new metaheuristics();
+
+            //wywołanie metaheurystyki
+            algorytm.UruchomAlgorytm(totalIterations, worker, e);
+        }
+
+        //odbiór danych na głównym wątku
+        private void Bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar.Value = e.ProgressPercentage;
+
+            //pobieramy info z metaheurystyki w tabeli i rozpakowujemy (info o iteracji i f. celu..)
+            if (e.UserState is double[] dane)
+            {
+                int iteracja = (int)dane[0];
+                double cel = dane[1];
+
+                console.AppendText($"Iteracja {iteracja}: {cel:F2}\r\n");
+
+                //zapisanie aktualnych danych i zapis do list w celu narysowania kompletnego wykresu
+                dataX.Add(iteracja);
+                dataY.Add(cel);
+
+                plotResults.Plot.Clear();
+                plotResults.Plot.Add.Scatter(dataX.ToArray(), dataY.ToArray());
+                plotResults.Plot.Axes.AutoScale();
+                plotResults.Refresh();
+            }
+        }
+
+        //koniec wątku
+        private void Bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            btnStart.Enabled = true;
+            btnStop.Enabled = false;
+
+            if (e.Cancelled)
+                console.AppendText("Zakończono przedwcześnie.\r\n");
+            else if (e.Error != null)
+                console.AppendText("Błąd: " + e.Error.Message + "\r\n");
+            else
+            {
+                console.AppendText("Zakończono obliczenia.\r\n");
+                progressBar.Value = 100;
+            }
+        }
+
+        //puste zdarzenia, missclick
+        private void label1_Click(object sender, EventArgs e) { }
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e) { }
+        private void numericUpDown7_ValueChanged(object sender, EventArgs e) { }
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e) { }
     }
 }
