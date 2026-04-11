@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace metaheuristics_geneticAlgorithm
 {
@@ -124,9 +125,29 @@ namespace metaheuristics_geneticAlgorithm
                     }
                 }
             }
+            // zapis macierzy idealnej do pliku
+            try
+            {
+                StringBuilder idealSb = new StringBuilder();
+                for (int r = 0; r < m; r++)
+                {
+                    for (int c = 0; c < n; c++)
+                    {
+                        idealSb.Append(matrix[r][c]);
+                    }
+                    idealSb.AppendLine();
+                }
+                //source\repos\metaheuristics_geneticAlgorithm\bin\Debug\net10.0-windows
+                File.WriteAllText("ideal_matrix.txt", idealSb.ToString());
+            }
+            catch (Exception ex)
+            {
+               
+                Console.WriteLine("Nie udało się zapisać pliku z idealną macierzą: " + ex.Message);
+            }
 
             //tasowanie Fisher-Yates
-           
+
             int[] colIndices = new int[n];
             for (int i = 0; i < n; i++) colIndices[i] = i;
 
