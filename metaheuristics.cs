@@ -1,37 +1,49 @@
 ﻿using System;
-using System.ComponentModel; 
+using System.ComponentModel;
 using System.Threading;
 
-namespace metaheuristics_geneticAlgorithm
-{
+namespace metaheuristics_geneticAlgorithm{
+
+    public class AlgorithmSettings
+    {
+        public byte[][] Matrix { get; set; }
+        public int NumberOfIteration { get; set; }
+        public int PopulationSize { get; set; }
+        public double Mutation { get; set; }
+        public double Crossing { get; set; }
+    }
+
     public class metaheuristics
     {
         
-        public void UruchomAlgorytm(int totalIterations, BackgroundWorker worker, DoWorkEventArgs e)
+        public void UruchomAlgorytm(AlgorithmSettings settings, BackgroundWorker worker, DoWorkEventArgs e)
         {
-           
+            
+            int m = settings.Matrix.Length;      // liczba fragmentów (wierszy)
+            int n = settings.Matrix[0].Length;   // liczba próbek (kolumn)
 
-            for (int i = 1; i <= totalIterations; i++)
+            // pętla ewolucyjna
+            for (int i = 1; i <= settings.NumberOfIteration; i++)
             {
-                //sprawdzanie, czy ktoś wcisnął STOP w okienku
                 if (worker.CancellationPending)
                 {
                     e.Cancel = true;
-                    return; //zakończ metodę natychmiast
+                    return;
                 }
 
-            
+                //tutaj kroki AG (Selekcja, Krzyżowanie, Mutacja)
+               
                 Thread.Sleep(50);
-                double pseudoFunkcjaCelu = 5000.0 / (i + 5) + new Random().NextDouble() * 10;
 
-                //pakowanie wyników i obliczanie procentów
-                int progressPercentage = (int)((i / (double)totalIterations) * 100);
+                
+                double pseudoFunkcjaCelu = (m * n) * Math.Exp(-i * 0.05) + new Random().NextDouble() * 5;
+
+                int progressPercentage = (int)((i / (double)settings.NumberOfIteration) * 100);
 
                 double[] paczkaDanych = new double[2];
                 paczkaDanych[0] = i;
                 paczkaDanych[1] = pseudoFunkcjaCelu;
 
-                
                 worker.ReportProgress(progressPercentage, paczkaDanych);
             }
         }

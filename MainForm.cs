@@ -10,6 +10,7 @@ namespace metaheuristics_geneticAlgorithm
     public partial class MainForm : Form
     {
         private BackgroundWorker bw;
+        private byte[][] CurrentMatrix;
 
         //listy do trzymania historii wyników dla wykresu
         private List<double> dataX = new List<double>();
@@ -51,7 +52,10 @@ namespace metaheuristics_geneticAlgorithm
                 int errors = (int)error_num.Value;
 
                 instance_generator generator = new instance_generator();
-                byte[][] finalMatrix = generator.GenerateInstance(m, n, fill, errors);
+
+                //wywołanie generatora tylko raz
+                CurrentMatrix = generator.GenerateInstance(m, n, fill, errors);
+                byte[][] finalMatrix = CurrentMatrix;
 
                 StringBuilder sb = new StringBuilder();
                 for (int r = 0; r < m; r++)
@@ -90,7 +94,16 @@ namespace metaheuristics_geneticAlgorithm
                 int maxIterations = (int)iterate_num.Value;
                 if (maxIterations == 0) maxIterations = 100;
 
-                bw.RunWorkerAsync(maxIterations);
+                var settings = new AlgorithmSettings
+                {
+                    Matrix = CurrentMatrix,
+                    NumberOfIteration = (int)iterate_num.Value,
+                    PopulationSize = (int)pupulation_num.Value,
+                    Mutation = (double)mutation_num.Value,
+                    Crossing = (double)cross_num.Value
+                };
+
+                bw.RunWorkerAsync(settings);
             }
         }
 
@@ -111,14 +124,14 @@ namespace metaheuristics_geneticAlgorithm
             // rzutowanie workera
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            //pobranie danych wejściowych (liczba iteracji) i rzutowanie na typ int
-            int totalIterations = (int)e.Argument;
+            // pobieranie całej paczki ustawień przekazanej z btnStart_Click
+            AlgorithmSettings settings = (AlgorithmSettings)e.Argument;
 
-            //tworzenie obiektu  metaheurystyki
+            //tworzenie obiektu metaheurystyki
             metaheuristics algorytm = new metaheuristics();
 
-            //wywołanie metaheurystyki
-            algorytm.UruchomAlgorytm(totalIterations, worker, e);
+            //wywołanie metaheurystyki, przekazujemy paczkę ustawień
+            algorytm.UruchomAlgorytm(settings, worker, e);
         }
 
         //odbiór danych na głównym wątku
