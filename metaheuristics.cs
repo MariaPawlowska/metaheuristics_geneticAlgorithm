@@ -13,9 +13,21 @@ namespace metaheuristics_geneticAlgorithm{
         public double Crossing { get; set; }
     }
 
+    public class Individual
+    {
+        public int[] Genotype { get; set; }
+        public double Fitness { get; set; }
+
+        public Individual(int numberOfCol)
+        {
+            Genotype = new int[numberOfCol]; // tablica dla osobnika
+        }
+    }
+
     public class metaheuristics
     {
-        
+        private Random rnd = new Random();
+
         public void UruchomAlgorytm(AlgorithmSettings settings, BackgroundWorker worker, DoWorkEventArgs e)
         {
             
@@ -46,6 +58,81 @@ namespace metaheuristics_geneticAlgorithm{
 
                 worker.ReportProgress(progressPercentage, paczkaDanych);
             }
+        }
+
+        private int ColScore(byte[] row, int[] genotype)
+        {
+            int n = genotype.Length;
+            int allOnces = 0; // licznik jedynek
+
+
+            for (int i = 0; i< n; i++) // zliczanie jedynek w genotypie osobnika
+            {
+                if (row[genotype[i]] == 1)
+                {
+                    allOnces++; 
+                }
+            }
+
+
+            int minScore = allOnces;
+
+            for (int start = 0; start < n; start++)
+            {
+                int onesSection = 0; // jednynki w bloku "1"
+                int zeorsSection = 0;
+
+                for (int end = start; end < n; end++)
+                {
+                    if (row[genotype[end]] == 1) // czy jedynka w bloku
+                        onesSection++;
+                   
+                    else
+                        zeorsSection++; // tyle trzeba zamienić 0 -> 1
+
+                    int noneSectionOnes = allOnces - onesSection; // jedynki po za blokiem "1" (tyle trzeba zamienić 1 -> 0)
+                    int currentScore = zeorsSection + noneSectionOnes; // całkowity koszt operacji zmiany
+
+                    if (currentScore < minScore)
+                    {
+                        minScore = currentScore;    
+                    }
+
+                }
+            }
+
+            return minScore;
+        }
+
+        private void FitnessScore(Individual individual, byte[][] matrix)
+        {
+            int numCol = matrix.Length;
+            double sumScore = 0;
+
+            for (int r = 0; r < numCol; r++)
+            {
+                sumScore += ColScore(matrix[r], individual.Genotype); //suma kosztów dla każdego wiersza w macierzy
+            }
+            individual.Fitness = sumScore;
+        }
+
+
+        private Individual TournamentSelection(List<Individual> population)
+        {
+            int tournamentSize = 3;
+            Individual bestIndividual = null;
+
+            for(int i = 0; i < tournamentSize; i++)
+            {
+                int randomId = rnd.Next(population.Count);
+                Individual candidate = population[randomId];    
+
+                if(bestIndividual == null || candidate.Fitness < bestIndividual.Fitness) //jeżeli pierwszy kandydat lub lepszy ma fitness score niż dotychczasowy najlepszy, obecny kandydat
+                {
+                    bestIndividual = candidate;
+                } 
+            }
+            return bestIndividual;
         }
     }
 }
