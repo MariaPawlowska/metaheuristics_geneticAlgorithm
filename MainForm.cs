@@ -16,7 +16,7 @@ namespace metaheuristics_geneticAlgorithm
         private List<double> dataX = new List<double>();
         private List<double> dataY = new List<double>();
 
-        public MainForm() 
+        public MainForm()
         {
             InitializeComponent();
 
@@ -99,8 +99,7 @@ namespace metaheuristics_geneticAlgorithm
                     Matrix = CurrentMatrix,
                     NumberOfIteration = (int)iterate_num.Value,
                     PopulationSize = (int)pupulation_num.Value,
-                    Mutation = (double)mutation_num.Value,
-                    Crossing = (double)cross_num.Value
+                    Mutation = (double)mutation_num.Value
                 };
 
                 bw.RunWorkerAsync(settings);
@@ -168,9 +167,29 @@ namespace metaheuristics_geneticAlgorithm
                 console.AppendText("Zakończono przedwcześnie.\r\n");
             else if (e.Error != null)
                 console.AppendText("Błąd: " + e.Error.Message + "\r\n");
-            else
+            else if (e.Result is Individual najlepszy) // Odbieramy naszego mistrza
             {
-                console.AppendText("Zakończono obliczenia.\r\n");
+                console.AppendText("\r\n--- WYNIK KOŃCOWY ---\r\n");
+                console.AppendText($"Najlepsza funkcja celu: {najlepszy.Fitness}\r\n");
+
+                // Wyświetlanie indeksów kolumn
+                string indeksy = string.Join(", ", najlepszy.Genotype);
+                console.AppendText($"Kolejność kolumn: {indeksy}\r\n");
+
+
+                console.AppendText("Zrekonstruowana macierz:\r\n");
+                for (int r = 0; r < CurrentMatrix.Length; r++)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    for (int c = 0; c < CurrentMatrix[0].Length; c++)
+                    {
+                        // z oryginalnej, przetasowanej macierzy bierzemy kolumnę wskazaną przez genotyp
+                        sb.Append(CurrentMatrix[r][najlepszy.Genotype[c]]);
+                    }
+                    console.AppendText(sb.ToString() + "\r\n");
+                }
+
+                console.AppendText("----------------------\r\n");
                 progressBar.Value = 100;
             }
         }
@@ -180,5 +199,15 @@ namespace metaheuristics_geneticAlgorithm
         private void numericUpDown2_ValueChanged(object sender, EventArgs e) { }
         private void numericUpDown7_ValueChanged(object sender, EventArgs e) { }
         private void numericUpDown1_ValueChanged(object sender, EventArgs e) { }
+
+        private void console_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

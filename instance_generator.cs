@@ -190,6 +190,23 @@ namespace metaheuristics_geneticAlgorithm
                     shuffledMatrix[r][c] = matrix[r][colIndices[c]];
                 }
             }
+
+            int[] correctGenotype = new int[n];
+            for (int c = 0; c < n; c++)
+            {
+                correctGenotype[colIndices[c]] = c;
+            }
+
+            // Zapisywanie prawidłowej kolejności do pliku
+            try
+            {
+                string correctOrder = string.Join(", ", correctGenotype);
+                File.WriteAllText("correct_order.txt", correctOrder);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Błąd zapisu pliku kolejności: " + ex.Message);
+            }
             return shuffledMatrix;
         }
     }

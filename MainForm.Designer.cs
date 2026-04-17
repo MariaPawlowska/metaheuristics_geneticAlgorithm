@@ -44,11 +44,9 @@
             tabPage2 = new TabPage();
             btnStop = new Button();
             btnStart = new Button();
-            crossover = new Label();
             mutation = new Label();
             iteration = new Label();
             population = new Label();
-            cross_num = new NumericUpDown();
             mutation_num = new NumericUpDown();
             iterate_num = new NumericUpDown();
             pupulation_num = new NumericUpDown();
@@ -64,7 +62,6 @@
             ((System.ComponentModel.ISupportInitialize)col_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)row_num).BeginInit();
             tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)cross_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)mutation_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)iterate_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pupulation_num).BeginInit();
@@ -80,7 +77,7 @@
             tabControl1.Location = new Point(0, 0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(800, 450);
+            tabControl1.Size = new Size(1475, 720);
             tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -99,7 +96,7 @@
             tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(792, 417);
+            tabPage1.Size = new Size(1467, 687);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Generator instancji";
             tabPage1.UseVisualStyleBackColor = true;
@@ -121,7 +118,7 @@
             Matrix_output.Multiline = true;
             Matrix_output.Name = "Matrix_output";
             Matrix_output.ScrollBars = ScrollBars.Both;
-            Matrix_output.Size = new Size(141, 55);
+            Matrix_output.Size = new Size(546, 398);
             Matrix_output.TabIndex = 9;
             // 
             // error
@@ -173,6 +170,7 @@
             // error_num
             // 
             error_num.Location = new Point(173, 164);
+            error_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             error_num.Name = "error_num";
             error_num.Size = new Size(150, 27);
             error_num.TabIndex = 3;
@@ -180,6 +178,7 @@
             // percent_num
             // 
             percent_num.Location = new Point(173, 110);
+            percent_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             percent_num.Name = "percent_num";
             percent_num.Size = new Size(150, 27);
             percent_num.TabIndex = 2;
@@ -187,6 +186,7 @@
             // col_num
             // 
             col_num.Location = new Point(173, 61);
+            col_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             col_num.Name = "col_num";
             col_num.Size = new Size(150, 27);
             col_num.TabIndex = 1;
@@ -195,6 +195,7 @@
             // row_num
             // 
             row_num.Location = new Point(173, 15);
+            row_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             row_num.Name = "row_num";
             row_num.Size = new Size(150, 27);
             row_num.TabIndex = 0;
@@ -204,18 +205,16 @@
             // 
             tabPage2.Controls.Add(btnStop);
             tabPage2.Controls.Add(btnStart);
-            tabPage2.Controls.Add(crossover);
             tabPage2.Controls.Add(mutation);
             tabPage2.Controls.Add(iteration);
             tabPage2.Controls.Add(population);
-            tabPage2.Controls.Add(cross_num);
             tabPage2.Controls.Add(mutation_num);
             tabPage2.Controls.Add(iterate_num);
             tabPage2.Controls.Add(pupulation_num);
             tabPage2.Location = new Point(4, 29);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(792, 417);
+            tabPage2.Size = new Size(1467, 687);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Metaheurystyka";
             tabPage2.UseVisualStyleBackColor = true;
@@ -237,15 +236,6 @@
             btnStart.TabIndex = 8;
             btnStart.Text = "START";
             btnStart.UseVisualStyleBackColor = true;
-            // 
-            // crossover
-            // 
-            crossover.AutoSize = true;
-            crossover.Location = new Point(40, 189);
-            crossover.Name = "crossover";
-            crossover.Size = new Size(240, 20);
-            crossover.TabIndex = 7;
-            crossover.Text = "Prawdopodobieństwo krzyżowania";
             // 
             // mutation
             // 
@@ -274,16 +264,10 @@
             population.TabIndex = 4;
             population.Text = "Rozmiar populacji";
             // 
-            // cross_num
-            // 
-            cross_num.Location = new Point(296, 182);
-            cross_num.Name = "cross_num";
-            cross_num.Size = new Size(150, 27);
-            cross_num.TabIndex = 3;
-            // 
             // mutation_num
             // 
             mutation_num.Location = new Point(296, 133);
+            mutation_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             mutation_num.Name = "mutation_num";
             mutation_num.Size = new Size(150, 27);
             mutation_num.TabIndex = 2;
@@ -292,6 +276,7 @@
             // iterate_num
             // 
             iterate_num.Location = new Point(296, 87);
+            iterate_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             iterate_num.Name = "iterate_num";
             iterate_num.Size = new Size(150, 27);
             iterate_num.TabIndex = 1;
@@ -299,6 +284,7 @@
             // pupulation_num
             // 
             pupulation_num.Location = new Point(296, 42);
+            pupulation_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             pupulation_num.Name = "pupulation_num";
             pupulation_num.Size = new Size(150, 27);
             pupulation_num.TabIndex = 0;
@@ -311,25 +297,27 @@
             tabPage3.Controls.Add(progressBar);
             tabPage3.Location = new Point(4, 29);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(792, 417);
+            tabPage3.Size = new Size(1467, 687);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "Wyniki";
             tabPage3.UseVisualStyleBackColor = true;
             // 
             // plotResults
             // 
-            plotResults.Location = new Point(308, 149);
+            plotResults.Location = new Point(1058, 79);
             plotResults.Name = "plotResults";
-            plotResults.Size = new Size(188, 188);
+            plotResults.Size = new Size(387, 372);
             plotResults.TabIndex = 3;
             // 
             // console
             // 
-            console.Location = new Point(308, 35);
+            console.Location = new Point(65, 79);
             console.Multiline = true;
             console.Name = "console";
-            console.Size = new Size(125, 34);
+            console.ScrollBars = ScrollBars.Vertical;
+            console.Size = new Size(973, 550);
             console.TabIndex = 2;
+            console.TextChanged += console_TextChanged;
             // 
             // progress
             // 
@@ -351,10 +339,11 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(1475, 720);
             Controls.Add(tabControl1);
             Name = "MainForm";
             Text = "MainForm";
+            Load += MainForm_Load;
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             tabPage1.PerformLayout();
@@ -364,7 +353,6 @@
             ((System.ComponentModel.ISupportInitialize)row_num).EndInit();
             tabPage2.ResumeLayout(false);
             tabPage2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)cross_num).EndInit();
             ((System.ComponentModel.ISupportInitialize)mutation_num).EndInit();
             ((System.ComponentModel.ISupportInitialize)iterate_num).EndInit();
             ((System.ComponentModel.ISupportInitialize)pupulation_num).EndInit();
@@ -390,11 +378,9 @@
         private Label row;
         private TextBox Matrix_output;
         private Button Button_matrix;
-        private Label crossover;
         private Label mutation;
         private Label iteration;
         private Label population;
-        private NumericUpDown cross_num;
         private NumericUpDown mutation_num;
         private NumericUpDown iterate_num;
         private NumericUpDown pupulation_num;

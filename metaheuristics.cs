@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ScottPlot.TickGenerators.Financial;
+using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace metaheuristics_geneticAlgorithm{
@@ -10,7 +12,6 @@ namespace metaheuristics_geneticAlgorithm{
         public int NumberOfIteration { get; set; }
         public int PopulationSize { get; set; }
         public double Mutation { get; set; }
-        public double Crossing { get; set; }
     }
 
     public class Individual
@@ -32,32 +33,121 @@ namespace metaheuristics_geneticAlgorithm{
         {
             
             int m = settings.Matrix.Length;      // liczba fragmentów (wierszy)
-            int n = settings.Matrix[0].Length;   // liczba próbek (kolumn)
+            int n = settings.Matrix[0].Length;   // liczba próbek (kolumn - genów)
 
-            // pętla ewolucyjna
-            for (int i = 1; i <= settings.NumberOfIteration; i++)
+            List<Individual> population = new List<Individual>(); // inicjalizacja początkowej populacji
+
+            for (int p = 0; p < settings.PopulationSize; p++) {
+                
+                Individual newIndiv = new Individual(n);
+
+                for (int i = 0; i < n; i++) newIndiv.Genotype[i] = i;
+
+                // tasowanie jak w generatorze
+                for(int i = n-1; i > 0; i--)
+                {
+                    int j = rnd.Next(i + 1);
+                    int temp = newIndiv.Genotype[i];
+                    newIndiv.Genotype[i] = newIndiv.Genotype[j];
+                    newIndiv.Genotype[j] = temp;
+                }
+
+                // ocena wygenerowanego osobnika
+                FitnessScore(newIndiv, settings.Matrix);
+                population.Add(newIndiv);
+
+            }
+
+
+            //zmienne do zapisu najlepszego wyniku oraz do stagnacji 
+            double generalBestScore = double.MaxValue;
+            Individual bestEver = null; // najlepszy układ kolumn
+            int stagnacionCount = 0;
+
+            //główna pętla ewolucyjna
+            for (int iteration = 1; iteration < settings.NumberOfIteration; iteration++)
             {
+                // czy user nie wcisnął STOP
                 if (worker.CancellationPending)
                 {
                     e.Cancel = true;
                     return;
                 }
 
-                //tutaj kroki AG (Selekcja, Krzyżowanie, Mutacja)
-               
-                Thread.Sleep(50);
+                //najlepszy osobnik
+                Individual elite = population[0];
+                foreach (var individual in population)
+                {
+                    if(individual.Fitness < elite.Fitness)
+                    {
+                        elite = individual;
+                    }
+                }
 
-                
-                double pseudoFunkcjaCelu = (m * n) * Math.Exp(-i * 0.05) + new Random().NextDouble() * 5;
 
-                int progressPercentage = (int)((i / (double)settings.NumberOfIteration) * 100);
+                //nowe pokolenie
+                List<Individual> newPopulation = new List<Individual>();
 
-                double[] paczkaDanych = new double[2];
-                paczkaDanych[0] = i;
-                paczkaDanych[1] = pseudoFunkcjaCelu;
+                // kopiujemy mistrza bezpośrednio do nowej populacji
+                Individual eliteCopy = new Individual(n);
+                for (int i = 0; i<n; i++) eliteCopy.Genotype[i] = elite.Genotype[i];
+                eliteCopy.Fitness = elite.Fitness;
+                newPopulation.Add(eliteCopy);
 
-                worker.ReportProgress(progressPercentage, paczkaDanych);
+                //tworzenie dzieci dopóki nie osiągniemy rozmiaru populacji
+                while (newPopulation.Count < settings.PopulationSize)
+                {
+                    //selekcja
+                    Individual parent1 = TournamentSelection(population);
+                    Individual parent2 = TournamentSelection(population);
+
+                    //krzyżowanie
+                    Individual children = CrossingOver(parent1, parent2);
+
+                    //mutacja
+                    Mutation(children, settings.Mutation);
+
+                    //ocena nowego osobnika i dodanie do populacji
+                    FitnessScore(children, settings.Matrix);
+                    newPopulation.Add(children);
+                }
+
+                population = newPopulation;
+
+                if(elite.Fitness < generalBestScore)
+                {
+                    generalBestScore = elite.Fitness;
+                    stagnacionCount = 0;
+
+                    bestEver = new Individual(n);
+                    Array.Copy(elite.Genotype, bestEver.Genotype, n);
+                    bestEver.Fitness = elite.Fitness;
+                }
+                else
+                {
+                    stagnacionCount++;
+                }
+
+
+                //jeśli nie ma poprawy przez 500 iteracji to zwracamy najlepszy wynik
+                if(stagnacionCount >= 500)
+                {
+                    worker.ReportProgress(100, new double[] { iteration, generalBestScore });
+                    break;
+                }
+
+
+                //przekaz info do interfejsu - pasek postępu i wykres
+                int progressPercentage = (int)((iteration / (double)settings.NumberOfIteration) * 100);
+
+                double[] dataPackage = new double[2];
+                dataPackage[0] = iteration;
+                dataPackage[1] = generalBestScore;
+
+                worker.ReportProgress(progressPercentage, dataPackage);
             }
+            e.Result = bestEver;
+
         }
 
         private int ColScore(byte[] row, int[] genotype)
@@ -106,10 +196,10 @@ namespace metaheuristics_geneticAlgorithm{
 
         private void FitnessScore(Individual individual, byte[][] matrix)
         {
-            int numCol = matrix.Length;
+            int numRow = matrix.Length;
             double sumScore = 0;
 
-            for (int r = 0; r < numCol; r++)
+            for (int r = 0; r < numRow; r++)
             {
                 sumScore += ColScore(matrix[r], individual.Genotype); //suma kosztów dla każdego wiersza w macierzy
             }
@@ -134,5 +224,75 @@ namespace metaheuristics_geneticAlgorithm{
             }
             return bestIndividual;
         }
+
+        private Individual CrossingOver(Individual parent1, Individual parent2)
+        {
+            int n = parent1.Genotype.Length;
+            Individual children = new Individual(n);
+
+            for (int i =0; i < n; i++)
+            {
+                children.Genotype[i] = -1;
+            }
+
+            int point1 = rnd.Next(n);
+            int point2 = rnd.Next(n);
+
+            //z wylosowanych punktów ustawiamy je od najmniejszego - strat, do największego - end
+            int start = Math.Min(point1, point2);
+            int end = Math.Max(point1, point2);
+
+            bool[] usedCol = new bool[n]; //tablica pomocnicza - czy kolumna została użyta od rodzica 1
+
+            for(int i = start; i <= end; i++)//kopiowanie genotypu (kolumny) od rodzica 1 
+            {
+                children.Genotype[i] = parent1.Genotype[i];
+                usedCol[parent1.Genotype[i]] = true; // ta kolumna np. nr 2 została użyta na id = 0
+            }
+
+            int freeId = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                //szukanie pierwszego wolnego indeksu u dziecka
+                while (freeId < n && children.Genotype[freeId]!= -1)
+                {
+                    freeId++; // następny id u dziecka, szukamy kolejnego wolnego (z -1)
+                }
+
+                if (freeId >= n) break; // gdy dojdziemy już do momentu gdzie przejdziemy cały genotyp dziecka i uzupełnimy genami rodzica 1 i 2 - break dla for 
+
+                int nextParent2Gen = parent2.Genotype[i];
+
+                if (!usedCol[nextParent2Gen]) // gdy nie użyty juz gen, to zapisujemy w wolne miejsce gen od rodzica 2
+                {
+                    children.Genotype[freeId] = nextParent2Gen;
+                    usedCol[nextParent2Gen] = true; 
+                }
+            }
+            return children;
+        }
+
+        private void Mutation(Individual children, double probabOfMutation)
+        {
+            double x = rnd.NextDouble()*100.0; // losowanie liczby od 0 do 100 
+
+            if(x <= probabOfMutation)
+            {
+                int n = children.Genotype.Length;
+
+                //losuje 2 indeksy z genotypu dziecka 
+                int id1 = rnd.Next(n);
+                int id2 = rnd.Next(n);
+
+                //zamiana 2 genów miejscami
+                int temp = children.Genotype[id1];
+                children.Genotype[id1] = children.Genotype[id2];
+                children.Genotype[id2] = temp;
+            }
+        }
     }
 }
+
+
+
