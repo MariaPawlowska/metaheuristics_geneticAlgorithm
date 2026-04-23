@@ -59,19 +59,38 @@ namespace metaheuristics_geneticAlgorithm{
             }
 
 
-            //zmienne do zapisu najlepszego wyniku oraz do stagnacji 
+            //inicjalizacja najlepszego wyniku
             double generalBestScore = double.MaxValue;
-            Individual bestEver = null; // najlepszy układ kolumn
+            Individual bestEver = new Individual(n);//najlepszy układ kolumn
+
+            //szukamy najlepszego osobnika już w wylosowanej populacji startowej
+            foreach (var individual in population)
+            {
+                if (individual.Fitness < generalBestScore)
+                {
+                    generalBestScore = individual.Fitness;
+                    Array.Copy(individual.Genotype, bestEver.Genotype, n);
+                    bestEver.Fitness = individual.Fitness;
+                }
+            }
+
             int stagnacionCount = 0;
 
+            //próg na 20% całkowitej liczby iteracji
+            int stagnationLimit = (int)(settings.NumberOfIteration * 0.20);
+            if (stagnationLimit < 50)
+            {
+                stagnationLimit = 50; //zabezpieczenie dla bardzo małej liczby iteracji
+            }
+
+
             //główna pętla ewolucyjna
-            for (int iteration = 1; iteration < settings.NumberOfIteration; iteration++)
+            for (int iteration = 1; iteration <= settings.NumberOfIteration; iteration++)
             {
                 // czy user nie wcisnął STOP
                 if (worker.CancellationPending)
                 {
-                    e.Cancel = true;
-                    return;
+                    break;
                 }
 
                 //najlepszy osobnik
@@ -129,8 +148,15 @@ namespace metaheuristics_geneticAlgorithm{
                 }
 
 
-                //jeśli nie ma poprawy przez 500 iteracji to zwracamy najlepszy wynik
-                if(stagnacionCount >= 500)
+                //jeśli nie ma poprawy przez zdefiniowany procent czasu - stop
+                if (stagnacionCount >= stagnationLimit)
+                {
+                    //wypisanie informacji do konsoli 
+                    worker.ReportProgress(100, new double[] { iteration, generalBestScore });
+                    break;
+                }
+                //jeżeli osiągnieto zero błędów to przerwanie
+                if (generalBestScore == 0)
                 {
                     worker.ReportProgress(100, new double[] { iteration, generalBestScore });
                     break;
@@ -211,10 +237,20 @@ namespace metaheuristics_geneticAlgorithm{
         {
             int tournamentSize = 3;
             Individual bestIndividual = null;
+            List<int> usedCandidates = new List<int>();//lista z zapisanymi uczestnikami - metoda bez zwracania
 
             for(int i = 0; i < tournamentSize; i++)
             {
-                int randomId = rnd.Next(population.Count);
+                int randomId;
+
+                do
+                {
+                    randomId = rnd.Next(population.Count);
+                }
+                while (usedCandidates.Contains(randomId));//jeśli ten id już jest na liście to pętla leci od nowa
+
+                usedCandidates.Add(randomId);
+
                 Individual candidate = population[randomId];    
 
                 if(bestIndividual == null || candidate.Fitness < bestIndividual.Fitness) //jeżeli pierwszy kandydat lub lepszy ma fitness score niż dotychczasowy najlepszy, obecny kandydat

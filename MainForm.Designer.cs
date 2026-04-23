@@ -41,6 +41,15 @@
             percent_num = new NumericUpDown();
             col_num = new NumericUpDown();
             row_num = new NumericUpDown();
+            tabPageManual = new TabPage();
+            dgvManualShuffled = new DataGridView();
+            dgvManualInput = new DataGridView();
+            btnManualShuffle = new Button();
+            btnManualCreate = new Button();
+            manual_col_num = new NumericUpDown();
+            manual_row_num = new NumericUpDown();
+            manual_col = new Label();
+            manual_row = new Label();
             tabPage2 = new TabPage();
             btnStop = new Button();
             btnStart = new Button();
@@ -61,6 +70,11 @@
             ((System.ComponentModel.ISupportInitialize)percent_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)col_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)row_num).BeginInit();
+            tabPageManual.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvManualShuffled).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvManualInput).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)manual_col_num).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)manual_row_num).BeginInit();
             tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)mutation_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)iterate_num).BeginInit();
@@ -71,6 +85,7 @@
             // tabControl1
             // 
             tabControl1.Controls.Add(tabPage1);
+            tabControl1.Controls.Add(tabPageManual);
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Controls.Add(tabPage3);
             tabControl1.Dock = DockStyle.Fill;
@@ -103,7 +118,7 @@
             // 
             // Button_matrix
             // 
-            Button_matrix.Location = new Point(407, 167);
+            Button_matrix.Location = new Point(83, 317);
             Button_matrix.Name = "Button_matrix";
             Button_matrix.Size = new Size(162, 29);
             Button_matrix.TabIndex = 10;
@@ -114,17 +129,17 @@
             // 
             Matrix_output.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             Matrix_output.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 238);
-            Matrix_output.Location = new Point(23, 236);
+            Matrix_output.Location = new Point(426, 44);
             Matrix_output.Multiline = true;
             Matrix_output.Name = "Matrix_output";
             Matrix_output.ScrollBars = ScrollBars.Both;
-            Matrix_output.Size = new Size(546, 398);
+            Matrix_output.Size = new Size(990, 552);
             Matrix_output.TabIndex = 9;
             // 
             // error
             // 
             error.AutoSize = true;
-            error.Location = new Point(23, 171);
+            error.Location = new Point(23, 247);
             error.Name = "error";
             error.Size = new Size(105, 20);
             error.TabIndex = 8;
@@ -133,7 +148,7 @@
             // ones
             // 
             ones.AutoSize = true;
-            ones.Location = new Point(23, 117);
+            ones.Location = new Point(23, 203);
             ones.Name = "ones";
             ones.Size = new Size(128, 20);
             ones.TabIndex = 7;
@@ -142,7 +157,7 @@
             // col
             // 
             col.AutoSize = true;
-            col.Location = new Point(23, 68);
+            col.Location = new Point(23, 158);
             col.Name = "col";
             col.Size = new Size(104, 20);
             col.TabIndex = 6;
@@ -151,16 +166,17 @@
             // row
             // 
             row.AutoSize = true;
-            row.Location = new Point(23, 22);
+            row.Location = new Point(23, 111);
             row.Name = "row";
             row.Size = new Size(103, 20);
             row.TabIndex = 5;
             row.Text = "Liczba wierszy";
+            row.Click += row_Click;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(329, 117);
+            label1.Location = new Point(342, 203);
             label1.Name = "label1";
             label1.Size = new Size(21, 20);
             label1.TabIndex = 4;
@@ -169,7 +185,7 @@
             // 
             // error_num
             // 
-            error_num.Location = new Point(173, 164);
+            error_num.Location = new Point(173, 247);
             error_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             error_num.Name = "error_num";
             error_num.Size = new Size(150, 27);
@@ -177,7 +193,7 @@
             // 
             // percent_num
             // 
-            percent_num.Location = new Point(173, 110);
+            percent_num.Location = new Point(173, 203);
             percent_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             percent_num.Name = "percent_num";
             percent_num.Size = new Size(150, 27);
@@ -185,7 +201,7 @@
             // 
             // col_num
             // 
-            col_num.Location = new Point(173, 61);
+            col_num.Location = new Point(173, 158);
             col_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             col_num.Name = "col_num";
             col_num.Size = new Size(150, 27);
@@ -194,12 +210,104 @@
             // 
             // row_num
             // 
-            row_num.Location = new Point(173, 15);
+            row_num.Location = new Point(173, 111);
             row_num.Maximum = new decimal(new int[] { -159383552, 46653770, 5421, 0 });
             row_num.Name = "row_num";
             row_num.Size = new Size(150, 27);
             row_num.TabIndex = 0;
             row_num.ValueChanged += numericUpDown1_ValueChanged;
+            // 
+            // tabPageManual
+            // 
+            tabPageManual.Controls.Add(dgvManualShuffled);
+            tabPageManual.Controls.Add(dgvManualInput);
+            tabPageManual.Controls.Add(btnManualShuffle);
+            tabPageManual.Controls.Add(btnManualCreate);
+            tabPageManual.Controls.Add(manual_col_num);
+            tabPageManual.Controls.Add(manual_row_num);
+            tabPageManual.Controls.Add(manual_col);
+            tabPageManual.Controls.Add(manual_row);
+            tabPageManual.Location = new Point(4, 29);
+            tabPageManual.Name = "tabPageManual";
+            tabPageManual.Size = new Size(1467, 687);
+            tabPageManual.TabIndex = 3;
+            tabPageManual.Text = "Własna macierz";
+            tabPageManual.UseVisualStyleBackColor = true;
+            // 
+            // dgvManualShuffled
+            // 
+            dgvManualShuffled.AllowUserToAddRows = false;
+            dgvManualShuffled.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvManualShuffled.Location = new Point(987, 111);
+            dgvManualShuffled.Name = "dgvManualShuffled";
+            dgvManualShuffled.ReadOnly = true;
+            dgvManualShuffled.RowHeadersWidth = 51;
+            dgvManualShuffled.Size = new Size(429, 393);
+            dgvManualShuffled.TabIndex = 7;
+            // 
+            // dgvManualInput
+            // 
+            dgvManualInput.AllowUserToAddRows = false;
+            dgvManualInput.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvManualInput.Location = new Point(479, 111);
+            dgvManualInput.Name = "dgvManualInput";
+            dgvManualInput.RowHeadersWidth = 51;
+            dgvManualInput.Size = new Size(425, 393);
+            dgvManualInput.TabIndex = 6;
+            // 
+            // btnManualShuffle
+            // 
+            btnManualShuffle.Location = new Point(610, 530);
+            btnManualShuffle.Name = "btnManualShuffle";
+            btnManualShuffle.Size = new Size(171, 29);
+            btnManualShuffle.TabIndex = 5;
+            btnManualShuffle.Text = "Zapisz i przetasuj";
+            btnManualShuffle.UseVisualStyleBackColor = true;
+            btnManualShuffle.Click += btnManualShuffle_Click;
+            // 
+            // btnManualCreate
+            // 
+            btnManualCreate.Location = new Point(101, 181);
+            btnManualCreate.Name = "btnManualCreate";
+            btnManualCreate.Size = new Size(173, 29);
+            btnManualCreate.TabIndex = 4;
+            btnManualCreate.Text = "Utwórz pustą siatkę";
+            btnManualCreate.UseVisualStyleBackColor = true;
+            btnManualCreate.Click += btnManualCreate_Click;
+            // 
+            // manual_col_num
+            // 
+            manual_col_num.Location = new Point(185, 111);
+            manual_col_num.Maximum = new decimal(new int[] { -1981284352, -1966660860, 0, 0 });
+            manual_col_num.Name = "manual_col_num";
+            manual_col_num.Size = new Size(150, 27);
+            manual_col_num.TabIndex = 3;
+            // 
+            // manual_row_num
+            // 
+            manual_row_num.Location = new Point(185, 56);
+            manual_row_num.Maximum = new decimal(new int[] { -1981284352, -1966660860, 0, 0 });
+            manual_row_num.Name = "manual_row_num";
+            manual_row_num.Size = new Size(150, 27);
+            manual_row_num.TabIndex = 2;
+            // 
+            // manual_col
+            // 
+            manual_col.AutoSize = true;
+            manual_col.Location = new Point(45, 111);
+            manual_col.Name = "manual_col";
+            manual_col.Size = new Size(104, 20);
+            manual_col.TabIndex = 1;
+            manual_col.Text = "Liczba kolumn";
+            // 
+            // manual_row
+            // 
+            manual_row.AutoSize = true;
+            manual_row.Location = new Point(45, 56);
+            manual_row.Name = "manual_row";
+            manual_row.Size = new Size(103, 20);
+            manual_row.TabIndex = 0;
+            manual_row.Text = "Liczba wierszy";
             // 
             // tabPage2
             // 
@@ -351,6 +459,12 @@
             ((System.ComponentModel.ISupportInitialize)percent_num).EndInit();
             ((System.ComponentModel.ISupportInitialize)col_num).EndInit();
             ((System.ComponentModel.ISupportInitialize)row_num).EndInit();
+            tabPageManual.ResumeLayout(false);
+            tabPageManual.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvManualShuffled).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvManualInput).EndInit();
+            ((System.ComponentModel.ISupportInitialize)manual_col_num).EndInit();
+            ((System.ComponentModel.ISupportInitialize)manual_row_num).EndInit();
             tabPage2.ResumeLayout(false);
             tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)mutation_num).EndInit();
@@ -390,5 +504,14 @@
         private ProgressBar progressBar;
         private TextBox console;
         private ScottPlot.WinForms.FormsPlot plotResults;
+        private TabPage tabPageManual;
+        private Button btnManualShuffle;
+        private Button btnManualCreate;
+        private NumericUpDown manual_col_num;
+        private NumericUpDown manual_row_num;
+        private Label manual_col;
+        private Label manual_row;
+        private DataGridView dgvManualShuffled;
+        private DataGridView dgvManualInput;
     }
 }
