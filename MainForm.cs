@@ -70,16 +70,15 @@ namespace metaheuristics_geneticAlgorithm
 
                 instance_generator generator = new instance_generator();
 
-                //wywołanie generatora tylko raz
+                //wywołanie generatora 
                 CurrentMatrix = generator.GenerateInstance(m, n, fill, errors);
-                byte[][] finalMatrix = CurrentMatrix;
 
                 StringBuilder sb = new StringBuilder();
                 for (int r = 0; r < m; r++)
                 {
                     for (int c = 0; c < n; c++)
                     {
-                        sb.Append(finalMatrix[r][c]);
+                        sb.Append(CurrentMatrix[r][c]);
                     }
                     sb.AppendLine();
                 }
@@ -188,7 +187,7 @@ namespace metaheuristics_geneticAlgorithm
             int n = (int)manual_col_num.Value;
             byte[][] manualMatrix = new byte[m][];
 
-            // 1. Zczytywanie i walidacja danych (tylko 0 i 1)
+            //zczytywanie i walidacja danych (tylko 0 i 1)
             for (int r = 0; r < m; r++)
             {
                 manualMatrix[r] = new byte[n];
@@ -207,7 +206,7 @@ namespace metaheuristics_geneticAlgorithm
                 }
             }
 
-            // 2. Zapis macierzy użytkownika do pliku (zanim przetasujemy)
+            //zapis macierzy użytkownika do pliku (zanim przetasujemy)
             try
             {
                 string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "macierze");
@@ -227,7 +226,7 @@ namespace metaheuristics_geneticAlgorithm
                 MessageBox.Show("Błąd przy zapisie macierzy: " + ex.Message);
             }
 
-            // 3. Tasowanie kolumn (Fisher-Yates)
+            //tasowanie kolumn (Fisher-Yates)
             Random rnd = new Random();
             int[] colIndices = new int[n];
             for (int i = 0; i < n; i++) colIndices[i] = i;
@@ -250,7 +249,7 @@ namespace metaheuristics_geneticAlgorithm
                 if (n <= 1) break;
             } while (isIdentical);
 
-            // 4. Tworzenie przetasowanej macierzy dla algorytmu
+            //tworzenie przetasowanej macierzy dla algorytmu
             CurrentMatrix = new byte[m][];
             for (int r = 0; r < m; r++)
             {
@@ -261,7 +260,7 @@ namespace metaheuristics_geneticAlgorithm
                 }
             }
 
-            // 5. Wyświetlenie przetasowanej macierzy w drugim DataGridView[cite: 22]
+            //wyświetlenie przetasowanej macierzy w drugim DataGridView
             DTableManualShuffled = new DataTable();
             SBindManualShuffled = new BindingSource();
             SBindManualShuffled.DataSource = DTableManualShuffled;
@@ -283,7 +282,7 @@ namespace metaheuristics_geneticAlgorithm
 
             foreach (DataGridViewColumn col in dgvManualShuffled.Columns) col.Width = 35;
 
-      
+
         }
 
         //obliczenia algorytmu - osobny, główny wątek
@@ -299,7 +298,7 @@ namespace metaheuristics_geneticAlgorithm
             metaheuristics algorytm = new metaheuristics();
 
             //wywołanie metaheurystyki, przekazujemy paczkę ustawień
-            algorytm.UruchomAlgorytm(settings, worker, e);
+            algorytm.RunAlgorithm(settings, worker, e);
         }
 
         //odbiór danych na głównym wątku
@@ -336,7 +335,7 @@ namespace metaheuristics_geneticAlgorithm
                 console.AppendText("Zakończono przedwcześnie.\r\n");
             else if (e.Error != null)
                 console.AppendText("Błąd: " + e.Error.Message + "\r\n");
-            else if (e.Result is Individual najlepszy) // Odbieramy naszego mistrza
+            else if (e.Result is Individual najlepszy) //odbieramy naszego najlepszego osobnika
             {
 
                 stoper.Stop();//koniec pomiaru czasu
@@ -344,7 +343,7 @@ namespace metaheuristics_geneticAlgorithm
                 console.AppendText($"Czas wykonania algorytmu: {stoper.Elapsed.TotalSeconds:F3} s\r\n");//czas w sekundach, do 3 miejsc po przecinku
                 console.AppendText($"Najlepsza funkcja celu: {najlepszy.Fitness}\r\n");
 
-                // Wyświetlanie indeksów kolumn
+                //wyświetlanie indeksów kolumn
                 string indeksy = string.Join(", ", najlepszy.Genotype);
                 console.AppendText($"Kolejność kolumn: {indeksy}\r\n");
 
@@ -393,29 +392,19 @@ namespace metaheuristics_geneticAlgorithm
             }
         }
 
+
+
+
+
         //puste zdarzenia, missclick
         private void label1_Click(object sender, EventArgs e) { }
         private void numericUpDown2_ValueChanged(object sender, EventArgs e) { }
         private void numericUpDown7_ValueChanged(object sender, EventArgs e) { }
         private void numericUpDown1_ValueChanged(object sender, EventArgs e) { }
-
         private void console_TextChanged(object sender, EventArgs e) { }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void row_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-       
+        private void MainForm_Load(object sender, EventArgs e) { }
+        private void row_Click(object sender, EventArgs e) { }
+        private void label2_Click(object sender, EventArgs e) { }
+        private void manual_row_num_ValueChanged(object sender, EventArgs e) { }
     }
 }

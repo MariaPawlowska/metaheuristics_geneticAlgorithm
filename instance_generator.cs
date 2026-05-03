@@ -39,7 +39,7 @@ namespace metaheuristics_geneticAlgorithm
                 //wyliczenie długości bloku 'x' dla konkretnego wiersza
                 int x = (int)Math.Round(n * (rowFill / 100.0));
 
-                // Zabezpieczenia brzegowe - żeby zawsze był min. 1 znak i żeby nie zajął całego wiersza
+                //zabezpieczenia brzegowe - żeby zawsze był min. 1 znak i żeby nie zajął całego wiersza
                 if (x < 1) x = 1;
                 if (x >= n) x = n - 1;
 
@@ -179,7 +179,7 @@ namespace metaheuristics_geneticAlgorithm
                 System.Windows.Forms.MessageBox.Show("Błąd zapisu pliku z idealną macierzą: " + ex.Message);
             }
 
-            // --- Tasowanie Fisher-Yates ---
+            //tasowanie Fisher-Yates
             int[] colIndices = new int[n];
             for (int i = 0; i < n; i++) colIndices[i] = i;
 

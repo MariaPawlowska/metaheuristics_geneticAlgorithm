@@ -290,6 +290,7 @@
             manual_row_num.Name = "manual_row_num";
             manual_row_num.Size = new Size(150, 27);
             manual_row_num.TabIndex = 2;
+            manual_row_num.ValueChanged += manual_row_num_ValueChanged;
             // 
             // manual_col
             // 

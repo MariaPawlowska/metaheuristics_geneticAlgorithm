@@ -29,7 +29,7 @@ namespace metaheuristics_geneticAlgorithm{
     {
         private Random rnd = new Random();
 
-        public void UruchomAlgorytm(AlgorithmSettings settings, BackgroundWorker worker, DoWorkEventArgs e)
+        public void RunAlgorithm(AlgorithmSettings settings, BackgroundWorker worker, DoWorkEventArgs e)
         {
             
             int m = settings.Matrix.Length;      // liczba fragmentów (wierszy)
@@ -61,7 +61,7 @@ namespace metaheuristics_geneticAlgorithm{
 
             //inicjalizacja najlepszego wyniku
             double generalBestScore = double.MaxValue;
-            Individual bestEver = new Individual(n);//najlepszy układ kolumn
+            Individual bestEver = new Individual(n);//najlepszy układ kolumn, z wylosowanej populacji
 
             //szukamy najlepszego osobnika już w wylosowanej populacji startowej
             foreach (var individual in population)
@@ -253,7 +253,7 @@ namespace metaheuristics_geneticAlgorithm{
 
                 Individual candidate = population[randomId];    
 
-                if(bestIndividual == null || candidate.Fitness < bestIndividual.Fitness) //jeżeli pierwszy kandydat lub lepszy ma fitness score niż dotychczasowy najlepszy, obecny kandydat
+                if(bestIndividual == null || candidate.Fitness < bestIndividual.Fitness) //jeżeli pierwszy kandydat lub kolejny kandydat ma lepszy fitness score niż dotychczasowy najlepszy, obecny kandydat
                 {
                     bestIndividual = candidate;
                 } 

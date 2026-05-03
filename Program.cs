@@ -9,11 +9,11 @@ namespace metaheuristics_geneticAlgorithm
         [STAThread]
         static void Main()
         {
-            // Podstawowa konfiguracja okienek Windows Forms
+            //podstawowa konfiguracja okienek Windows Forms
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            // Uruchomienie Twojego głównego okna
+            //uruchomienie głównego okna
             Application.Run(new MainForm());
         }
     }
