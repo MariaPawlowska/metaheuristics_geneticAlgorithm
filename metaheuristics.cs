@@ -93,25 +93,31 @@ namespace metaheuristics_geneticAlgorithm{
                     break;
                 }
 
-                //najlepszy osobnik
-                Individual elite = population[0];
-                foreach (var individual in population)
-                {
-                    if(individual.Fitness < elite.Fitness)
-                    {
-                        elite = individual;
-                    }
-                }
+                //sortowanie populacji - od najlepszego fitness do najgorszego
+                population.Sort((a, b) => a.Fitness.CompareTo(b.Fitness));
 
+                //wyliczanie rozmiaru "elity"
+                double elitePercentage = 0.02; 
+                int eliteCount = (int)(settings.PopulationSize * elitePercentage);
+
+                //zachowanie minimum 1 osobnika, gdy % będzie np. 0.8
+                if (eliteCount < 1) eliteCount = 1;
 
                 //nowe pokolenie
                 List<Individual> newPopulation = new List<Individual>();
 
-                // kopiujemy mistrza bezpośrednio do nowej populacji
-                Individual eliteCopy = new Individual(n);
-                for (int i = 0; i<n; i++) eliteCopy.Genotype[i] = elite.Genotype[i];
-                eliteCopy.Fitness = elite.Fitness;
-                newPopulation.Add(eliteCopy);
+                //kopiowanie "elity" do nowej populacji
+                for (int i = 0; i < eliteCount; i++)
+                {
+                    Individual eliteToCopy = population[i];
+                    Individual eliteCopy = new Individual(n);
+
+                    
+                    Array.Copy(eliteToCopy.Genotype, eliteCopy.Genotype, n);
+                    eliteCopy.Fitness = eliteToCopy.Fitness;
+
+                    newPopulation.Add(eliteCopy);
+                }
 
                 //tworzenie dzieci dopóki nie osiągniemy rozmiaru populacji
                 while (newPopulation.Count < settings.PopulationSize)
@@ -133,14 +139,14 @@ namespace metaheuristics_geneticAlgorithm{
 
                 population = newPopulation;
 
-                if(elite.Fitness < generalBestScore)
+                if(population[0].Fitness < generalBestScore)
                 {
-                    generalBestScore = elite.Fitness;
+                    generalBestScore = population[0].Fitness;
                     stagnacionCount = 0;
 
                     bestEver = new Individual(n);
-                    Array.Copy(elite.Genotype, bestEver.Genotype, n);
-                    bestEver.Fitness = elite.Fitness;
+                    Array.Copy(population[0].Genotype, bestEver.Genotype, n);
+                    bestEver.Fitness = population[0].Fitness;
                 }
                 else
                 {

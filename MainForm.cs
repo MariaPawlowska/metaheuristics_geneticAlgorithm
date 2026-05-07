@@ -26,6 +26,10 @@ namespace metaheuristics_geneticAlgorithm
         DataTable DTableManualInput;
         BindingSource SBindManualInput;
 
+        //zmienne do obsługi macierzy z błędami
+        DataTable DTableGenerated;
+        BindingSource SBindGenerated;
+
         //zmienne do wyświetlania przetasowanej własnej macierzy
         DataTable DTableManualShuffled;
         BindingSource SBindManualShuffled;
@@ -41,6 +45,7 @@ namespace metaheuristics_geneticAlgorithm
             btnStop.Click += btnStop_Click;
             btnManualCreate.Click += btnManualCreate_Click;
             btnManualShuffle.Click += btnManualShuffle_Click;
+            btnShuffleGenerated.Click += btnShuffleGenerated_Click;
 
             btnStop.Enabled = false;
 
@@ -69,31 +74,89 @@ namespace metaheuristics_geneticAlgorithm
                 int errors = (int)error_num.Value;
 
                 instance_generator generator = new instance_generator();
+                //pobieranie macierzy uporządkowanej
+                byte[][] idealMatrix = generator.GenerateInstance(m, n, fill, errors);
 
-                //wywołanie generatora 
-                CurrentMatrix = generator.GenerateInstance(m, n, fill, errors);
+                //wyświetlanie w data gridview
+                DTableGenerated = new DataTable();
+                SBindGenerated = new BindingSource { DataSource = DTableGenerated };
+                dgvGeneratedMatrix.DataSource = SBindGenerated; 
 
+                for (int c = 0; c < n; c++) DTableGenerated.Columns.Add($"C{c}");
+                for (int r = 0; r < m; r++)
+                {
+                    DataRow row = DTableGenerated.NewRow();
+                    for (int c = 0; c < n; c++) row[c] = idealMatrix[r][c];
+                    DTableGenerated.Rows.Add(row);
+                }
+                foreach (DataGridViewColumn col in dgvGeneratedMatrix.Columns) col.Width = 35;
+            }
+            catch (Exception ex) { MessageBox.Show("Błąd: " + ex.Message); }
+        }
+
+
+        private void btnShuffleGenerated_Click(object sender, EventArgs e)
+        {
+            if (DTableGenerated == null) return;
+
+            int m = DTableGenerated.Rows.Count;
+            int n = DTableGenerated.Columns.Count;
+            byte[][] matrixToProcess = new byte[m][];
+
+            //zczytywanie macierzy z tabeli z błędami
+            for (int r = 0; r < m; r++)
+            {
+                matrixToProcess[r] = new byte[n];
+                for (int c = 0; c < n; c++)
+                    matrixToProcess[r][c] = byte.Parse(DTableGenerated.Rows[r][c].ToString());
+            }
+
+            //zapis do pliku
+            try
+            {
+                string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "macierze");
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
                 StringBuilder sb = new StringBuilder();
                 for (int r = 0; r < m; r++)
                 {
-                    for (int c = 0; c < n; c++)
-                    {
-                        sb.Append(CurrentMatrix[r][c]);
-                    }
+                    for (int c = 0; c < n; c++) sb.Append(matrixToProcess[r][c]);
                     sb.AppendLine();
                 }
+                File.WriteAllText(Path.Combine(folderPath, $"ideal_with_errors_{timestamp}.txt"), sb.ToString());
+            }
+            catch (Exception ex) { MessageBox.Show("Błąd zapisu: " + ex.Message); }
 
-                Matrix_output.Text = sb.ToString();
-            }
-            catch (Exception ex)
+            //tasowanie kolumn (Fisher-Yates)
+            Random rnd = new Random();
+            int[] colIndices = Enumerable.Range(0, n).ToArray();
+            for (int i = n - 1; i > 0; i--)
             {
-                MessageBox.Show("Błąd generatora: " + ex.Message);
+                int j = rnd.Next(i + 1);
+                int temp = colIndices[i];
+                colIndices[i] = colIndices[j];
+                colIndices[j] = temp;
             }
+
+            //przekazanie do AG
+            CurrentMatrix = new byte[m][];
+            for (int r = 0; r < m; r++)
+            {
+                CurrentMatrix[r] = new byte[n];
+                for (int c = 0; c < n; c++) CurrentMatrix[r][c] = matrixToProcess[r][colIndices[c]];
+            }
+            
         }
 
         //guzik startu
         private void btnStart_Click(object sender, EventArgs e)
         {
+            if (CurrentMatrix == null)
+            {
+                MessageBox.Show("Brak macierzy do obliczeń! Najpierw wygeneruj macierz, ewentualnie dodaj błędy i kliknij 'Zapisz i przetasuj'.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; 
+            }
+
             if (!bw.IsBusy)
             {
                 btnStart.Enabled = false;
@@ -406,5 +469,7 @@ namespace metaheuristics_geneticAlgorithm
         private void row_Click(object sender, EventArgs e) { }
         private void label2_Click(object sender, EventArgs e) { }
         private void manual_row_num_ValueChanged(object sender, EventArgs e) { }
+
+        private void Matrix_output_TextChanged(object sender, EventArgs e) { }
     }
 }

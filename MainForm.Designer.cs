@@ -31,7 +31,6 @@
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             Button_matrix = new Button();
-            Matrix_output = new TextBox();
             error = new Label();
             ones = new Label();
             col = new Label();
@@ -64,6 +63,8 @@
             console = new TextBox();
             progress = new Label();
             progressBar = new ProgressBar();
+            dgvGeneratedMatrix = new DataGridView();
+            btnShuffleGenerated = new Button();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)error_num).BeginInit();
@@ -80,6 +81,7 @@
             ((System.ComponentModel.ISupportInitialize)iterate_num).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pupulation_num).BeginInit();
             tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvGeneratedMatrix).BeginInit();
             SuspendLayout();
             // 
             // tabControl1
@@ -97,8 +99,9 @@
             // 
             // tabPage1
             // 
+            tabPage1.Controls.Add(btnShuffleGenerated);
+            tabPage1.Controls.Add(dgvGeneratedMatrix);
             tabPage1.Controls.Add(Button_matrix);
-            tabPage1.Controls.Add(Matrix_output);
             tabPage1.Controls.Add(error);
             tabPage1.Controls.Add(ones);
             tabPage1.Controls.Add(col);
@@ -124,17 +127,6 @@
             Button_matrix.TabIndex = 10;
             Button_matrix.Text = "Generuj macierz";
             Button_matrix.UseVisualStyleBackColor = true;
-            // 
-            // Matrix_output
-            // 
-            Matrix_output.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            Matrix_output.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 238);
-            Matrix_output.Location = new Point(426, 44);
-            Matrix_output.Multiline = true;
-            Matrix_output.Name = "Matrix_output";
-            Matrix_output.ScrollBars = ScrollBars.Both;
-            Matrix_output.Size = new Size(990, 552);
-            Matrix_output.TabIndex = 9;
             // 
             // error
             // 
@@ -444,6 +436,24 @@
             progressBar.Size = new Size(125, 29);
             progressBar.TabIndex = 0;
             // 
+            // dgvGeneratedMatrix
+            // 
+            dgvGeneratedMatrix.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvGeneratedMatrix.Location = new Point(615, 111);
+            dgvGeneratedMatrix.Name = "dgvGeneratedMatrix";
+            dgvGeneratedMatrix.RowHeadersWidth = 51;
+            dgvGeneratedMatrix.Size = new Size(769, 296);
+            dgvGeneratedMatrix.TabIndex = 11;
+            // 
+            // btnShuffleGenerated
+            // 
+            btnShuffleGenerated.Location = new Point(954, 435);
+            btnShuffleGenerated.Name = "btnShuffleGenerated";
+            btnShuffleGenerated.Size = new Size(94, 29);
+            btnShuffleGenerated.TabIndex = 12;
+            btnShuffleGenerated.Text = "Tasuj";
+            btnShuffleGenerated.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -473,6 +483,7 @@
             ((System.ComponentModel.ISupportInitialize)pupulation_num).EndInit();
             tabPage3.ResumeLayout(false);
             tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvGeneratedMatrix).EndInit();
             ResumeLayout(false);
         }
 
@@ -491,7 +502,6 @@
         private Label ones;
         private Label col;
         private Label row;
-        private TextBox Matrix_output;
         private Button Button_matrix;
         private Label mutation;
         private Label iteration;
@@ -514,5 +524,7 @@
         private Label manual_row;
         private DataGridView dgvManualShuffled;
         private DataGridView dgvManualInput;
+        private DataGridView dgvGeneratedMatrix;
+        private Button btnShuffleGenerated;
     }
 }

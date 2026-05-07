@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Data;
 using System.IO;
+using System.Text;
 
 namespace metaheuristics_geneticAlgorithm
 {
     internal class instance_generator
     {
         private Random rnd = new Random();
+        
 
         //metoda generująca i tasująca macierz
         public byte[][] GenerateInstance(int m, int n, double fillPercentage, int errorCount)
@@ -152,72 +154,8 @@ namespace metaheuristics_geneticAlgorithm
                 }
             }
 
-           //zapis ideal_matrix.txt
-            try
-            {
-                string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "macierze");
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
 
-                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                StringBuilder idealSb = new StringBuilder();
-                for (int r = 0; r < m; r++)
-                {
-                    for (int c = 0; c < n; c++)
-                    {
-                        idealSb.Append(matrix[r][c]);
-                    }
-                    idealSb.AppendLine();
-                }
-                string matrixPath = Path.Combine(folderPath, $"ideal_matrix_{timestamp}.txt");
-                File.WriteAllText(matrixPath, idealSb.ToString());
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show("Błąd zapisu pliku z idealną macierzą: " + ex.Message);
-            }
-
-            //tasowanie Fisher-Yates
-            int[] colIndices = new int[n];
-            for (int i = 0; i < n; i++) colIndices[i] = i;
-
-            bool isIdentical;
-            do
-            {
-                isIdentical = true;
-                for (int i = n - 1; i > 0; i--)
-                {
-                    int j = rnd.Next(0, i + 1);
-                    int temp = colIndices[i];
-                    colIndices[i] = colIndices[j];
-                    colIndices[j] = temp;
-                }
-
-                for (int i = 0; i < n; i++)
-                {
-                    if (colIndices[i] != i)
-                    {
-                        isIdentical = false;
-                        break;
-                    }
-                }
-                if (n <= 1) break;
-
-            } while (isIdentical);
-
-            byte[][] shuffledMatrix = new byte[m][];
-            for (int r = 0; r < m; r++)
-            {
-                shuffledMatrix[r] = new byte[n];
-                for (int c = 0; c < n; c++)
-                {
-                    shuffledMatrix[r][c] = matrix[r][colIndices[c]];
-                }
-            }
-
-            return shuffledMatrix;
+            return matrix;
         }
     }
 }
